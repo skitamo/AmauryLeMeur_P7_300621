@@ -1,15 +1,11 @@
 /* Importation des modules */
-const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
+const sequelize = require('sequelize');
 
 /* Création du schémas de données */
-const userSchema = mongoose.Schema({
-	email: { type: String, required: true, unique: true },
-	password: { type: String, required: true },
+const userSchema = sequelize.define('User', {
+	email: { type: DataTypes.STRING, allowNull: false, unique: true },
+	password: { type: DataTypes.STRING, allowNull: false },
 });
 
-/* Plugin pour rendre l'email utilisateur unique */
-userSchema.plugin(uniqueValidator);
-
 /* Exportation du schéma de données */
-module.exports = mongoose.model('User', userSchema); 
+module.exports = sequelize.define('User', userSchema);
