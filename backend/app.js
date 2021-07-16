@@ -16,9 +16,6 @@ const app = express();
 /* Module permettant de stocker des informations sensibles séparément du code */
 require('dotenv').config();
 
-/* Connection à la base de données */
-
-
 /* Middleware Header pour éviter les erreurs CORS */
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
