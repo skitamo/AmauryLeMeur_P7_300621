@@ -17,6 +17,7 @@ CREATE TABLE 'user' (
 `lastName` varchar(255) DEFAULT NULL,
 `resume` text DEFAULT NULL,
 `job` varchar(255) DEFAULT NULL,
+`profilePicture` varchar(255) NOT NULL DEFAULT 'http://localhost:3000/images/avatar_default.svg',
 `role` varchar(255) DEFAULT NULL,
 `dateCreation` datetime NOT NULL,
 PRIMARY KEY (`userId`),
