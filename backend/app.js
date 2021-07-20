@@ -8,7 +8,8 @@ const helmet = require('helmet');
 const session = require('cookie-session');
 
 /* Déclaration des routes */
-
+const userRoutes = require('./routes/user');
+const postRoutes = require('./routes/post');
 
 /* Création d'une application express*/
 const app = express();
@@ -52,7 +53,8 @@ app.use(bodyParser.json());
 app.use('/images/', express.static(path.join(__dirname, 'images')));
 
 /* Middlewares permettant de transmettre les requêtes vers les routes correspondantes */
-
+app.use('/api/user', userRoutes);
+app.use('/api/post', postRoutes);
 
 /* Exportation de l'application */
 module.exports = app;
