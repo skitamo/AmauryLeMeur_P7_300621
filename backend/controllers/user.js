@@ -11,8 +11,8 @@ exports.signup = (req, res, next) => {
 	bcrypt.hash(req.body.password, 10)
 	.then(hash => {
 		const email = req.body.email;
-		const firstname = req.body.firstname;
-		const lastname = req.body.lastname;
+		const firstName = req.body.firstName;
+		const lastName = req.body.lastName;
 		const password = hash;
 
 		let sql = `INSERT INTO User VALUES (NULL, ?, ?, ?, ?, NULL, NULL, DEFAULT, NOW())`;
