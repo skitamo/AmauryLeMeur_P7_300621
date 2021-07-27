@@ -37,6 +37,7 @@
 				text: ""
 			};
 		},
+		
 		methods: {
 			sendDataCreateComment() {
 				this.$emit("comment-sent", this.$data);
