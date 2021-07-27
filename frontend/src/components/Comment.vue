@@ -8,7 +8,7 @@
 
 			<router-link :to="{ name: 'userProfile', params: { id: idUser } }">
 				<slot name="commentUserProfilePicture"></slot>
-				<slot name="commentUsername"></slot>
+				<slot name="commentUserName"></slot>
 			</router-link>
 
 			<span v-if="roleUser == 'Administrateur' || idUser == idUserConnected" class="options"><i class="fas fa-times back" v-on:click.prevent="sendDataDeleteComment(idComment)"></i></span>

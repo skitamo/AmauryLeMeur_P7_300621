@@ -16,7 +16,7 @@
 			<router-link :to="{ name: 'userConnectedProfile' }">
 				<div class="userProfile">
 					<slot name="profilePicture"></slot>
-					<slot name="username"></slot>
+					<slot name="userName"></slot>
 				</div>
 			</router-link>
 		</div>
@@ -30,7 +30,7 @@
 					<router-link :to="{ name: 'userConnectedProfile' }">
 						<div class="userProfile">
 							<slot name="profilePicture"></slot>
-							<slot name="username"></slot>
+							<slot name="userName"></slot>
 						</div>
 					</router-link>
 				</b-dropdown-item>

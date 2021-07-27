@@ -8,7 +8,7 @@
 			<router-link :to="{ name: 'userProfile', params: { id: idUser } }">
 				<div class="coworkerInfo" :id="idUser">
 					<slot name="postUserProfilePicture"></slot>
-					<slot name="postUsername"></slot>
+					<slot name="postUserName"></slot>
 				</div>
 			</router-link>
 

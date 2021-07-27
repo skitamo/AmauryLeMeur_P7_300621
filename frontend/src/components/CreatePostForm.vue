@@ -9,7 +9,7 @@
 
 			<div class="userInfos">
 				<slot name="profilePicture"></slot>
-				<slot name="username"></slot>
+				<slot name="userName"></slot>
 			</div>
 
 			<form class="createPostForm" name="createPostForm">
