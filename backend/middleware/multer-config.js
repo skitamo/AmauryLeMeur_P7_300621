@@ -7,7 +7,12 @@ const MIME_TYPES = {
 	'image/jpeg': 'jpg',
 	'image/png': 'png',
 	'image/svg' : 'svg',
-	'image/gif' : 'gif'
+	'image/gif' : 'gif',
+	'video/mp4' : 'mp4',
+	'video/avi' : 'avi',
+	'video/asf' : 'asf',
+	'video/mkv' : 'mkv',
+	'video/mpeg' : 'mpeg'
 };
 
 /* Création d'un objet de configuration pour multer */
