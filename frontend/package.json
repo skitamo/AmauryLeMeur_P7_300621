@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "FileReader": "^0.10.2",
+    "FormData": "^0.10.1",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "vue": "^3.1.5",

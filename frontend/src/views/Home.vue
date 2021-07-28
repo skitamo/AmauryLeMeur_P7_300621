@@ -46,7 +46,7 @@
 				this.password = payload.password;
 				this.$axios( {
 					method: 'post',
-					url: 'http://localhost:3000/api/user/login',
+					url: `http://localhost:3000/api/user/login`,
 					data: this.$data
 				})
 				.then((response) => {

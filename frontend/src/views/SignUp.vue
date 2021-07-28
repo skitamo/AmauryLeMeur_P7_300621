@@ -53,13 +53,13 @@
 
 				this.$axios( {
 					method: 'post',
-					url: 'http://localhost:3000/api/user/signup',
+					url: `http://localhost:3000/api/user/signup`,
 					data: this.$data
 				})
 				.then(() => {
 					this.$axios({
 						method: 'post',
-						url: 'http://localhost:3000/api/user/login',
+						url: `http://localhost:3000/api/user/login`,
 						data: this.$data
 					})
 					.then((response) => {
