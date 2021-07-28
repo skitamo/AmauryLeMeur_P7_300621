@@ -230,3 +230,36 @@
 	}
 
 </script>
+
+<style>
+	
+	.feed {
+		display: flex;
+		flex-direction: column;
+		background-color: rgb(230, 230, 230);
+		padding: 10px;
+	}
+
+	.userPicture {
+		width: 25px;
+		height: 25px;
+		border-radius: 20px;
+		margin-right: 10px;
+	}
+
+	.userPictureComment {
+		width: 46px;
+		height: 46px;
+		border-radius: 23px;
+		margin-right: 10px;
+	}
+
+	.noComment {
+		margin: auto;
+		padding: 30px 0px 30px 0px;
+		font-size: 1.5em;
+		color: grey;
+		font-family: "Montserrat";
+	}
+
+</style>
