@@ -6,10 +6,10 @@
 </template>
 
 <script>
-import Footer from '@/components/Footer'
+import Footer from "@/components/Footer";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Footer
   }
@@ -17,7 +17,7 @@ export default {
 </script>
 
 <style lang="scss">
-#app {
+#app{
   min-height: 100vh;
 }
 </style>

@@ -1,265 +1,288 @@
-const connection = require('../MySQLConnect').connection;
+// Importation des modules
+//const connection = require('../MySQLConnect').connection;
+const mysql = require('mysql2');
+const { Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const fs = require('fs');
+const jwt = require("jsonwebtoken");
+const fs = require("fs");
 
-/* Module permettant de stocker des informations sensibles séparément du code */
+// Module qui permet de stocker des informations sensibles séparément du code
 require('dotenv').config();
 
-/* Middleware permettant de créer un nouvel utilisateur */
+/*const connection = mysql.createConnection({
+    host     : "localhost",
+    user     : "Groupoadmin",
+    password : "GroupoPW",
+    database : "groupomaniadb",
+    //port     : 3306
+}); */
+
+const sequelize = new Sequelize("groupomaniadb", "Groupoadmin", "GroupoPW", {
+    dialect: "mysql",
+    host: "localhost"
+});
+
+// Middleware pour créer un nouvel utilisateur
 exports.signup = (req, res, next) => {
-	bcrypt.hash(req.body.password, 10)
-	.then(hash => {
-		const email = req.body.email;
-		const firstName = req.body.firstName;
-		const lastName = req.body.lastName;
-		const password = hash;
+    //console.log(connection.connect());
+    try {
+        sequelize.authenticate();
+        console.log('Connecté à la base de données MySQL !');
+    } catch (error) {
+        console.error('Impossible de se connecter, erreur suivante :', error);
+    }
+    /*bcrypt.hash(req.body.password, 10)
+    .then(hash => {
+        const email = req.body.email;
+        const firstname = req.body.firstname;
+        const lastname = req.body.lastname;
+        const password = hash;
 
-		let sql = `INSERT INTO User VALUES (NULL, ?, ?, ?, ?, NULL, NULL, DEFAULT, NOW())`;
-		let values = [email, firstname, lastname, password];
+        let sql = `INSERT INTO Users VALUES (NULL, ?, ?, ?, ?, NULL, NULL, DEFAULT, NOW())`;
+        let values = [email, firstname, lastname, password];
 
-		connection.query(sql, values,
-			function (err, result) {
-				if (err) {
-					return res.status(500).json({ error: "Erreur serveur !" });
-				}
-				res.status(201).json({ message: "Utilisateur créé !" });
-			}
-		);
-	})
-	.catch(e => res.status(500).json({ error: "Le mot de passe doit contenir au moins 8 caractères dont une majuscule, une minuscule, un chiffre et un symbole spécial"}))
+        connection.query(sql, values, 
+            function (err, result) {
+                if (err) {
+                    return res.status(500).json({ error: "Erreur serveur !" });
+                }
+                res.status(201).json({ message: "Utilisateur créé !" });
+            }
+        );
+    })
+    .catch(e => res.status(500).json({ error: "Le mot de passe doit contenir au moins 6 caractères dont un chiffre" }));*/
 };
 
-/* Middleware permettant la connexion d'un utilisateur existant */
+// Middleware pour la connexion d'un utilisateur existant
 exports.login = (req, res, next) => {
-	const email = req.body.email;
-	const password = req.body.password;
+    const email = req.body.email;
+    const password = req.body.password;
 
-	let sql = `SELECT userId, password FROM User WHERE email = ?`;
-	let values = [email];
+    let sql = `SELECT userId, password FROM Users WHERE email = ?`;
+    let values = [email];
 
-	connection.query(sql, values,
-		function (error, result) {
-			if (error) {
-				return res.status(500).json({ error: "Erreur serveur !" });
-			}
-			if (result.length===0) {
-				return res.status(401).json({ error: "L'utilisateur n'existe pas. Veuillez-vous inscrire avant de vous connecter !"});
-			}
-
-			bcrypt.compare(password, result[0].password)
-			.then(valid => {
-				if (!valid) {
-					return res.status(401).json({ error: "Mot de passe incorrect !"});
-				}
-				res.status(200).json({
-					userId: result[0].userId,
-					token: jwt.sign(
-						{ userId: result[0].userId },
-						process.env.KEY_TOKEN,
-						{ expiresIn: '24h' }
-					)
-				});
-			})
-			.catch(error => res.status(500).json({ error: "Erreur serveur !"}));
-		}
-	);
+    connection.query(sql, values, 
+        function (error, result) {
+            if (error) {
+                return res.status(500).json({ error: "Erreur serveur !" });
+            }
+            if (result.length===0) {
+                return res.status(401).json({ error: "L'utilisateur n'existe pas. Veuillez vous inscrire d'abord !" });
+            }
+        
+            bcrypt.compare(password, result[0].password)
+            .then(valid => {
+                if (!valid) {
+                    return res.status(401).json({ error: 'Mot de passe incorrect !'});
+                }
+                res.status(200).json({
+                    userId: result[0].userId,
+                    token: jwt.sign(
+                        { userId: result[0].userId },
+                        process.env.TOK_SECRET,
+                        { expiresIn: '24h' }
+                    )
+                });
+            })
+            .catch(error => res.status(500).json({ error: "Erreur serveur !" }));
+        }
+    );
 };
 
-/* Middleware permettant de supprimer un utilisateur */
+// Middleware pour supprimer un utilisateur
 exports.deleteUser = (req, res, next) => {
-	const userId = res.locals.userId;
-	const password = req.body.password;
+    const userId = res.locals.userId;
+    const password = req.body.password;
 
-	let sql = `SELECT password, profilePicture FROM User WHERE userId = ?`;
-	let values = [userId];
+    let sql = `SELECT password, photoProfil FROM Users WHERE userId = ?`;
+    let values = [userId];
 
-	connection.query(sql, values,
-		function (error, result) {
-			if (error) {
-				return res.status(500).json({ error: "Erreur serveur !" });
-			}
-			if (result.length===0) {
-				return res.status(401).json({ error: "Utilisateur non trouvé !"});
-			}
+    connection.query(sql, values, 
+        function (error, result) {
+            if (error) {
+                return res.status(500).json({ error: "Erreur serveur !" });
+            }
+            if (result.length===0) {
+                return res.status(401).json({ error: "Utilisateur non trouvé !" });
+            }
+            
+            const filename = result[0].photoProfil.split('/images/')[1];
+            if (filename != "photoProfil_default.jpg") {
+                fs.unlink(`images/${filename}`, () => {
+                    if (error) {
+                        return res.status(500).json({ error: "Erreur serveur !" });
+                    }
+                });
+            }
 
-			const filename = result[0].profilePicture.split('/images/')[1];
-			if (filename != "avatar_default.svg") {
-				fs.unlink(`images/${filename}`, () => {
-					if (error) {
-						return res.status(500).json({ error: "Erreur serveur !" });
-					}
-				});
-			}
+            bcrypt.compare(password, result[0].password)
+            .then(valid => {
+                if (!valid) {
+                    return res.status(401).json({ error: 'Mot de passe incorrect !' });
+                } else {
+                    let sql = `DELETE FROM Users WHERE userId = ?`;
+                    let values = [userId];
 
-			bcrypt.compare(password, result[0].password)
-			.then(valid => {
-				if (!valid) {
-					return res.status(401).json({ error: "Mot de passe incorrect !" });
-				} else {
-					let sql = `DELETE FROM User WHERE userId = ?`;
-					let values = [userId];
-
-					connection.query(sql, values,
-						function (error, result) {
-							if (error) {
-								return res.status(500).json(error.message);
-							}
-							res.status(201).json({ message: "Utilisateur supprimé !" });
-						}
-					);
-				}
-			})
-			.catch(error => res.status(500).json({ error: "Erreur serveur !"}));
-		}
-	);
+                    connection.query(sql, values, 
+                        function (error, result) {
+                            if (error) {
+                                return res.status(500).json(error.message);
+                            }
+                            res.status(201).json({ message: "Utilisateur supprimé !" });
+                        }
+                    );
+                }
+            })
+            .catch(error => res.status(500).json({ error: "Erreur serveur !" }));
+        }
+    );
 };
 
-/* Middleware permettant de modifier un utilisateur */
+//Middleware pour modifier un utilisateur
 exports.updateUser = (req, res, next) => {
-	const userId = res.locals.userId;
-	const email = req.body.email;
-	const resume = req.body.resume;
-	const password = req.body.password;
+    const userId = res.locals.userId;
+    const email = req.body.email;
+    const bio = req.body.bio;
+    const password = req.body.password;
 
-	if (req.file) { /* Si le changement concerne la photo de profile, on update directement */
-		const profilePicture = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+    if (req.file) { // Si le changement concerne l'avatar on update directement
+        const photoProfil = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
 
-		let sql = `SELECT profilePicture FROM User WHERE userId = ?`;
-		let values = [userId];
+        let sql = `SELECT photoProfil FROM Users WHERE userId = ?`;
+        let values = [userId];
 
-		connection.query(sql, values,
-			function (err, result) {
-				if (err) {
-					return res.status(500).json({ error: "Erreur serveur !" });
-				}
+        connection.query(sql, values, 
+            function (err, result) {
+                if (err) {
+                    return res.status(500).json({ error: "Erreur serveur !" });
+                }
 
-				const filename = result[0].profilePicture.split('/images/')[1];
+                const filename = result[0].photoProfil.split('/images/')[1];
 
-				let sql = `UPDATE User SET profilePicture = ? WHERE userId = ?`;
-				let values = [profilePicture, userId];
+                let sql = `UPDATE Users SET photoProfil = ? WHERE userId = ?`;
+                let values = [photoProfil, userId];
 
-				if (filename !== "avatar_default.svg") {
-					fs.unlink(`images/${filename}`, () => { /* On supprime le fichier en amont */
+                if (filename !== "photoProfil_default.jpg") {
+                    fs.unlink(`images/${filename}`, () => {// On supprime le fichier image en amont
+                        
+                        connection.query(sql, values, function (err, result) {
+                            if (err) {
+                                return res.status(500).json({ error: "Erreur serveur !" });
+                            }
+                            return res.status(200).json({ message: "Utilisateur modifé !" });
+                        });
+                    });
+                } else {
+                    connection.query(sql, values, function (err, result) {
+                        if (err) {
+                            return res.status(500).json({ error: "Erreur serveur !" });
+                        }
+                        return res.status(200).json({ message: "Utilisateur modifé !" });
+                    });
+                }
+            }
+        );
 
-						connection.query(sql, values, function (err, result) {
-							if (err) {
-								return res.status(500).json({ error: "Erreur serveur !" });
-							}
-							return res.status(200).json({ message: "Utilisateur modifié !" });
-						});
-					});
-				} else {
-					connection.query(sql, values, function (err, result) {
-						if (err) {
-							return res.status(500).json({ error: "Erreur serveur !"});
-						}
-						return res.status(200).json({ message: "Utilisateur modifié !"});
-					});
-				}
-			}
-		);
+    } else {
 
-	} else {
+        let sql = `SELECT password FROM Users WHERE userId = ?`;
+        let values = [userId];
 
-		let sql = `SELECT password FROM User WHERE userId = ?`;
-		let values = [userId];
+        connection.query(sql, values, 
+            function (err, result) {
+                if (err) {
+                    return res.status(500).json({ error: "Erreur serveur !" });
+                }
+                if (result.length == 0) {
+                    return res.status(401).json({ error: "Utilisateur non trouvé !" });
+                }
 
-		connection.query(sql, values,
-			function (err, result) {
-				if (err) {
-					return res.status(500).json({ error: "Erreur serveur !" });
-				}
-				if (result.length == 0) {
-					return res.status(401).json({ error: "Utilisateur non trouvé !" });
-				}
+                const newPassword = req.body.newPassword;
 
-				const newPassword = req.body.newPassword;
+                bcrypt.compare(password, result[0].password)
+                .then(valid => {
+                    if (!valid) {
+                        return res.status(401).json({ error: "Mot de passe incorrect !" });
+                    }
+                    if (newPassword) { // Si un nouveau mdp est défini
+                        bcrypt.hash(newPassword, 10)
+                            .then(hash => {
+                                sql = `UPDATE Users SET email = ?, bio = ?, password = ? WHERE userId = ?`;
+                                values = [email, bio, hash, userId];
 
-				bcrypt.compare(password, result[0].password)
-				.then(valid => {
-					if (!valid) {
-						return res.status(401).json({ error: "Mot de passe incorrect !" });
-					}
-					if (newPassword) { /* Si un nouveau mot de passe est défini */
-					bcrypt.hash(newPassword, 10)
-						.then(hash => {
-							sql = `UPDATE User SET email = ?, resume = ?, password = ? WHERE userId = ?`;
-							values = [email, resume, hash, userId];
+                                connection.query(sql, values, 
+                                    function (err, result) {
+                                        if (err) {
+                                            return res.status(500).json({ error: "Erreur serveur !" });
+                                        }
+                                        if (result.affectedRows == 0) {
+                                            return res.status(400).json({ error: "Erreur serveur : Impossible de modifier cet utilisateur !" });
+                                        }
+                                        res.status(200).json({ message: "Modifications bien prises en compte !" });
+                                    }
+                                );
+                            })
+                            .catch(e => res.status(500).json({ error: "Erreur serveur !" }));
 
-							connection.query(sql, values, 
-								function (err, result) {
-									if (err) {
-										return res.status(500).json({ error: "Erreur serveur !" });
-									}
-									if (result.affectedRows == 0) {
-										return res.status(400).json({ error: "Erreur serveur : Impossible de modifier cet utilisateur !" });
-									}
-									res.status(200).json({ message: "Modifications enregistrées !" });
-								}
-							);
-						})
-						.catch(e => res.status(500).json({ error: "Erreur serveur !" }));
+                    } else { // Si le mdp reste le même
+                        sql = `UPDATE Users SET email = ?, bio = ? WHERE userId = ?`;
+                        values = [email, bio, userId];
 
-					} else { /* Si le mot de passe reste le même */
-						sql = `UPDATE User SET email = ?, resume = ? WHERE userId = ?`;
-						values = [email, resume, userId];
-
-						connection.query(sql, values,
-							function (err, result) {
-								if (err) {
-									return res.status(500).json({ error: "Erreur serveur !"});
-								}
-								if (result.affectedRows == 0) {
-									return res.status(400).json({ error: "Erreur serveur : Impossible de modifier cet utilisateur !" });
-								}
-								res.status(200).json({ message: "Modifications enregistrées !" });
-							}
-						);
-					}
-				})
-				.catch(error => res.status(500).json({ error: "Erreur serveur !" }));
-			}
-		);
-	}
+                        connection.query(sql, values, 
+                            function (err, result) {
+                                if (err) {
+                                    return res.status(500).json({ error: "Erreur serveur !" });
+                                }
+                                if (result.affectedRows == 0) {
+                                    return res.status(400).json({ error: "Erreur serveur : Impossible de modifier cet utilisateur !" });
+                                }
+                                res.status(200).json({ message: "Modifications bien prises en compte !" });
+                            }
+                        );
+                    }
+                })
+                .catch(error => res.status(500).json({ error: "Erreur serveur !" }));
+            }
+        );
+    }
 };
 
-/* Middleware permettant d'afficher le profil d'un utilisateur */
-exports.displayProfile = (req, res, next) => {
-	const userId = req.params.id;
+//Middleware pour afficher le profil d'un utilisateur
+exports.displayProfil = (req, res, next) => {
+    const userId = req.params.id;
 
-	let sql = `SELECT userId, firstName, lastName, email, resume, profilePicture, DATE_FORMAT(user.dateCreation, '%e %M %Y à %kh%i') AS dateCreation, job, role FROM User WHERE userId = ?`;
-	let values = [userId];
+    let sql = `SELECT userId, firstname, lastname, email, bio, photoProfil, DATE_FORMAT(users.dateCreation, '%e %M %Y à %kh%i') AS dateCreation, role FROM Users WHERE userId = ?`;
+    let values = [userId];
 
-	connection.query(sql, values,
-		function (error, result) {
-			if (error) {
-				return res.status(500).json({ error: "Erreur serveur !" });
-			}
-			if (result.length===0) {
-				return res.status(401).json({ error: "L'utilisateur n'existe pas !" });
-			}
-			res.status(200).json(result);
-		}
-	);
+    connection.query(sql, values, 
+        function (error, result) {
+            if (error) {
+                return res.status(500).json({ error: "Erreur serveur !" });
+            }
+            if (result.length===0) {
+                return res.status(401).json({ error: "L'utilisateur n'existe pas !" });
+            }
+            res.status(200).json(result);
+        }
+    );
 };
 
-/* Middleware pour afficher le profil de l'utilisateur connecté */
+//Middleware pour afficher le profil de l'utilisateur connecté
 exports.getUserConnected = (req, res, next) => {
-	const userId = res.locals.userId;
+    const userId = res.locals.userId;
 
-	let sql = `SELECT userId, firstName, lastName, email, resume, profilePicture, DATE_FORMAT(user.dateCreation, '%e %M %Y à %kh%i') AS dateCreation, job, role FROM User WHERE userId = ?`;
-	let values = [userId];
+    let sql = `SELECT userId, firstname, lastname, email, bio, photoProfil, DATE_FORMAT(users.dateCreation, '%e %M %Y à %kh%i') AS dateCreation, role FROM Users WHERE userId = ?`;
+    let values = [userId];
 
-	connection.query(sql, values,
-		function (error, result) {
-			if (error) {
-				return res.status(500).json({ error: "Erreur serveur !" });
-			}
-			if (result.length===0) {
-				return res.status(401).json({ error: "L'utilisateur n'existe pas !" });
-			}
-			res.status(200).json(result);
-		}
-	);
-};
+    connection.query(sql, values, 
+        function (error, result) {
+            if (error) {
+                return res.status(500).json({ error: "Erreur serveur !" });
+            }
+            if (result.length===0) {
+                return res.status(401).json({ error: "L'utilisateur n'existe pas !" });
+            }
+            res.status(200).json(result);
+        }
+    );
+}

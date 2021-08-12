@@ -1,14 +1,14 @@
-/* Importation des modules */
+// Importation des modules
 const mysql = require('mysql');
 
-/* Module permettant de stocker des informations sensible séparément du code */
+// Module qui permet de stocker des informations sensibles séparément du code
 require('dotenv').config();
 
-/* Connection à la base de donnée */
+// Connection à la base de donnée
 exports.connection = mysql.createPool({
-	host : process.env.DB_HOST,
-	user : process.env.DB_USER,
-	password : process.env.DB_PASSWORD,
-	database : process.env.DATABASE,
-	port : 3306
+    host     : process.env.DB_HOST,
+    user     : process.env.DB_USER,
+    password : process.env.DB_PW,
+    database : process.env.DB_DATABASE,
+    port     : 3306
 });

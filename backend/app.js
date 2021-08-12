@@ -1,60 +1,36 @@
-/* Importation des modules */
+// Importation des modules
 const express = require('express');
-const bodyParser = require('body-parser');
 const path = require('path');
+const cors = require('cors');
 
-/* Importation des modules de sécurité */
+// Importation des modules de sécurité
 const helmet = require('helmet');
-const session = require('cookie-session');
 
-/* Déclaration des routes */
+// Déclaration des routes
+const articlesRoutes = require('./routes/articles');
 const userRoutes = require('./routes/user');
-const postRoutes = require('./routes/post');
 
-/* Création d'une application express*/
+// Création d'une application express
 const app = express();
 
-/* Module permettant de stocker des informations sensibles séparément du code */
-require('dotenv').config();
+// Middleware Header pour éviter les erreurs CORS
+app.use(cors());
 
-/* Middleware Header pour éviter les erreurs CORS */
-app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-	next();
-});
+// Middleware qui permet de parser les requêtes envoyées par le client, on peut y accéder grâce à req.body
+app.use(express.urlencoded({ extended: true }));
 
-/* Middleware permettant la sécurisation des cookies */
-const expiryDate = new Date(Date.now() + 60 * 60 * 1000);
-app.use(session({
-	name: 'sessionId',
-	secret: process.env.KEY_SESSION,
-	cookie: {
-		secure: true,
-		httpOnly: true,
-		domain: 'http://localhost:3000',
-		expires: expiryDate
-	}
-}));
-
-/* Middleware permettant de parser les requêtes envoyées par le client. On peut y accéder grâce à req.body */
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
-
-/* Middleware permettant de protéger l'application de certaines des vulnérabilités bien connues du Web en configurant de manière appropriée les en-têtes HTTP */
+// Module qui permet de protéger l'application de certaines des vulnérabilités bien connues du Web en configurant de manière appropriée des en-têtes HTTP.
 app.use(helmet());
 
-/* Utilisation de bodyParser pour transformer les données arrivant de la requête POST en objet JSON */
-app.use(bodyParser.json());
+// Utilisation de bodyParser pour transforme les données arrivant de la requête POST en objet JSON
+app.use(express.json());
 
-/* Middleware permettant de charger les fichiers qui sont dans le dossier "images" */
+// Midleware pour charger les fichiers qui sont dans le dossier 'images'
 app.use('/images/', express.static(path.join(__dirname, 'images')));
 
-/* Middlewares permettant de transmettre les requêtes vers les routes correspondantes */
+// Middlewares pour transmettre les requêtes vers les routes correspondantes
+app.use('/api/articles', articlesRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/post', postRoutes);
 
-/* Exportation de l'application */
+// Exportation de l'application
 module.exports = app;
