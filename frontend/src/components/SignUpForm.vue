@@ -4,7 +4,7 @@
   <div class="form my-4 my-0-sm">
     <img class="logoSmall d-md-none" alt="Groupomania logo" src="@/assets/icon-left-font-monochrome-black.svg">
     <p class="d-md-none">Créez un compte pour pouvoir partager avec vos collègues !</p>
-    <form id="signUpForm" name="signUpForm">
+    <form id="signupForm" name="signupForm">
       <div>
         <input v-model="lastname" class="username" type="text" id="lastname" name="lastname" placeholder="Nom" required>
       </div>

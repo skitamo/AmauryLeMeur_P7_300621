@@ -14,7 +14,7 @@
 
 <script>
 // @ is an alias to /src
-import SignUpForm from "@/components/SignUpForm.vue";
+import SignUpForm from '../components/SignUpForm.vue';
 import Alert from "@/components/Alert.vue";
 
 export default {

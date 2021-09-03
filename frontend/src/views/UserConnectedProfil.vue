@@ -299,7 +299,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: "Overpass";
+  font-family: "Montserrat";
   position: relative;
   z-index: 2;
   background: white;
@@ -335,7 +335,7 @@ export default {
 }
 .updateProfile{
     margin: auto;
-    font-family: "Overpass";
+    font-family: "Montserrat";
     justify-content: center;
     position: relative;
     z-index: 1;

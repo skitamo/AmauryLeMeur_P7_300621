@@ -1,7 +1,5 @@
 // Importation des modules
-//const connection = require('../MySQLConnect').connection;
-const mysql = require('mysql2');
-const { Sequelize } = require('sequelize');
+const connection = require('../MySQLConnect').connection;
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
@@ -9,48 +7,42 @@ const fs = require("fs");
 // Module qui permet de stocker des informations sensibles séparément du code
 require('dotenv').config();
 
-/*const connection = mysql.createConnection({
-    host     : "localhost",
-    user     : "Groupoadmin",
-    password : "GroupoPW",
-    database : "groupomaniadb",
-    //port     : 3306
-}); */
+// Module qui permet de se connecter à la base de données
 
-const sequelize = new Sequelize("groupomaniadb", "Groupoadmin", "GroupoPW", {
-    dialect: "mysql",
-    host: "localhost"
-});
+const connection = mysql.createPool({
+    host     : 'localhost',
+    user     : 'Groupoadmin',
+    password : 'GroupoPW',
+    database : 'groupomaniadb',
+    timezone : 'local',
+    charset : 'utf8mb4'
+  });
 
 // Middleware pour créer un nouvel utilisateur
 exports.signup = (req, res, next) => {
-    //console.log(connection.connect());
-    try {
-        sequelize.authenticate();
-        console.log('Connecté à la base de données MySQL !');
-    } catch (error) {
-        console.error('Impossible de se connecter, erreur suivante :', error);
-    }
-    /*bcrypt.hash(req.body.password, 10)
+    console.log(req.body)
+    bcrypt.hash(req.body.password, 10)
     .then(hash => {
         const email = req.body.email;
         const firstname = req.body.firstname;
         const lastname = req.body.lastname;
         const password = hash;
+        console.log(hash)
 
-        let sql = `INSERT INTO Users VALUES (NULL, ?, ?, ?, ?, NULL, NULL, DEFAULT, NOW())`;
+        let sql = `INSERT INTO users VALUES (NULL, ?, ?, ?, ?, NULL, NULL, DEFAULT, NOW())`;
         let values = [email, firstname, lastname, password];
-
+        
+        console.log(connection)
         connection.query(sql, values, 
             function (err, result) {
                 if (err) {
-                    return res.status(500).json({ error: "Erreur serveur !" });
+                    return res.status(500).json({ error: err });
                 }
                 res.status(201).json({ message: "Utilisateur créé !" });
             }
         );
     })
-    .catch(e => res.status(500).json({ error: "Le mot de passe doit contenir au moins 6 caractères dont un chiffre" }));*/
+    .catch(e => res.status(500).json(e));
 };
 
 // Middleware pour la connexion d'un utilisateur existant
